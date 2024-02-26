@@ -30,9 +30,18 @@ export default function Register() {
 
         async function registerServiceWorker() {
             try {
-                await navigator.serviceWorker.register('/service-worker.js');
+                return await navigator.serviceWorker.register('/service-worker.js');
             } catch (err) {
                 setStatusMsg("Error registering service worker. Check console for more details.");
+                throw err;
+            }
+        }
+
+        async function subscribeToPushService(registration: ServiceWorkerRegistration) {
+            try {
+                return await registration.pushManager.subscribe();
+            } catch (err) {
+                setStatusMsg("Error registering push service. Check console for more details.");
                 throw err;
             }
         }
@@ -40,7 +49,9 @@ export default function Register() {
         async function main() {
             try {
                 await requestNotifications();
-                await registerServiceWorker();
+                const registration = await registerServiceWorker();
+                const subscription = await subscribeToPushService(registration);
+                console.log(subscription);
 
                 setStatusMsg("Registered for push notifications successfully.");
                 setIsRegistered(true);
